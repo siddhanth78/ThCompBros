@@ -1,7 +1,9 @@
 public class primesThreadedJ {
+
+    private static int count;
     public static void main(String[] args) {
 
-        int count = 0;
+        count = 0;
         int low = 10;
         int high = 100;
         int range = high - low;
@@ -40,7 +42,6 @@ public class primesThreadedJ {
     static class numPrimesThread implements Runnable {
         private int start;
         private int stop;
-        private static int count;
 
         public numPrimesThread(int start, int stop, int count) {
             this.start = start;
