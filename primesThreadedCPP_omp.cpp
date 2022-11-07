@@ -14,8 +14,22 @@ int main() {
     int numThreads = 5;
     //std::thread* ths[numThreads];
 
-    
-    int* count = (int*)malloc(numThreads * sizeof(int));
+    omp_set_num_threads(numThreads);
+
+    #pragma omp parallel
+    {	
+	int index = 0;
+	int total = 0;
+	double wtime = omp_get_wtime();
+
+	#pragma omp for schedule(static, range/numThreads)
+	for(int i = low; i < high; i++){
+            total += isPrime(i);
+	}
+	wtime = omp_get_wtime() - wtime;
+	std::cout << omp_get_thread_num() << " : " << wtime << " : " << total << "\n";
+	index++;
+    }
 
     omp_set_num_threads(numThreads);
 
@@ -32,10 +46,7 @@ int main() {
 	wtime = omp_get_wtime() - wtime;
 	std::cout << omp_get_thread_num() << " : " << wtime << " : " << total << "\n";
 	index++;
-    }
-
-    
-    free(count);
+    };	
 }
 
 int isPrime(int num) {
