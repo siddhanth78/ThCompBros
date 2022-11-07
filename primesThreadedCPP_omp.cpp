@@ -16,6 +16,8 @@ int main() {
 
     omp_set_num_threads(numThreads);
 
+    std::cout << "Blocking:\n";
+
     #pragma omp parallel
     {	
 	int index = 0;
@@ -31,7 +33,7 @@ int main() {
 	index++;
     }
 
-    omp_set_num_threads(numThreads);
+    std::cout << "Striping:\n";
 
     #pragma omp parallel
     {	
