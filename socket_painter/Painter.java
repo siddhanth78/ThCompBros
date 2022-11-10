@@ -18,6 +18,8 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
     public Painter() {
 
+        start = new Point();
+
         setSize(500, 500);
 
         // When Painter is closed, java virtual machine stops
@@ -81,7 +83,9 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         // after finishing the PaintingPanel class (described later) add a
         // new object of this class as the CENTER panel
-        PaintingPanel centerPanel = new PaintingPanel();
+        centerPanel = new PaintingPanel();
+        centerPanel.addMouseListener(this);
+
         holder.add(centerPanel, BorderLayout.CENTER);
 
         // And later you will add the chat panel to the SOUTH
@@ -91,11 +95,6 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         // And make it visible to layout all the components on the screen
         setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new Painter();
-        System.out.println("here");
     }
 
     @Override
@@ -129,6 +128,7 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
     public void mousePressed(MouseEvent e) {
         start.x = e.getX();
         start.y = e.getY();
+        System.out.println("Start X: " + start.x + ", Start Y: " + start.y);
     }
 
     @Override
@@ -141,11 +141,12 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         if(primitive.equals("line")) {
             shape = new Line(color, start, end);
-        } else if(primitive.equals("circle")) {
+        } else {
             shape = new Circle(color, start, end);
         }
 
         centerPanel.addPrimitive(shape);
+        shape.draw(getGraphics());
 
     }
 
@@ -171,5 +172,13 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
     public void mouseMoved(MouseEvent e) {
         // TODO Auto-generated method stub
         
+    }
+
+    //
+    // MAIN
+    //
+
+    public static void main(String[] args) {
+        new Painter();
     }
 }
