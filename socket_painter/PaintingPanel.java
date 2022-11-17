@@ -1,10 +1,11 @@
+
 import java.awt.*;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 
 public class PaintingPanel extends JPanel {
 
-    private ArrayList<PaintingPrimitives> primitives = new ArrayList<PaintingPrimitives>();
+    protected ArrayList<PaintingPrimitives> primitives = new ArrayList<PaintingPrimitives>();
 
     public PaintingPanel() {
         this.setBackground(Color.WHITE); 

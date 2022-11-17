@@ -1,24 +1,32 @@
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 
 public class Painter extends JFrame implements ActionListener, MouseInputListener {
 
+    static final int PORT = 4200;
+    private Socket s;
+
     private Color color;
     private String primitive;
 
     private Point start;
 
-    PaintingPanel centerPanel;
+    private PaintingPanel centerPanel;
 
     public Painter() {
 
-        start = new Point();
+        // Initialize private instance variables
+        color = Color.RED;
+        primitive = "line";
 
         setSize(500, 500);
 
@@ -32,7 +40,7 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new GridLayout(3, 1));
 
-        // red paint button
+            // red paint button
         JButton redPaint = new JButton();
         redPaint.setBackground(Color.RED);
         redPaint.setOpaque(true);
@@ -42,7 +50,7 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
         redPaint.addActionListener(this);
         redPaint.setActionCommand("red");
 
-        // green paint button
+            // green paint button
         JButton greenPaint = new JButton();
         greenPaint.setBackground(Color.GREEN);
         greenPaint.setOpaque(true);
@@ -52,7 +60,7 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
         greenPaint.addActionListener(this);
         greenPaint.setActionCommand("green");
 
-        // blue paint button
+            // blue paint button
         JButton bluePaint = new JButton();
         bluePaint.setBackground(Color.BLUE);
         bluePaint.setOpaque(true);
@@ -81,8 +89,7 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         holder.add(topPanel, BorderLayout.NORTH);
 
-        // after finishing the PaintingPanel class (described later) add a
-        // new object of this class as the CENTER panel
+        // Center Panel
         centerPanel = new PaintingPanel();
         centerPanel.addMouseListener(this);
 
@@ -90,10 +97,18 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         // And later you will add the chat panel to the SOUTH
 
-        // Lastly, connect the holder to the JFrame
+        // Connect holder to JFrame
         setContentPane(holder);
 
-        // And make it visible to layout all the components on the screen
+        try {
+            s = new Socket("localhost", PORT);
+            System.out.println("Connected");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // Make it visible to layout all the components on the screen
         setVisible(true);
     }
 
@@ -103,19 +118,17 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         if(actionCommand.equals("red")) {
             color = Color.RED;
-            System.out.println("red");
+            //System.out.println("red");
         } else if(actionCommand.equals("green")) {
             color = Color.GREEN;
-            System.out.println("green");
+            //System.out.println("green");
         } else if(actionCommand.equals("blue")) {
             color = Color.BLUE;
-            System.out.println("blue");
+            //System.out.println("blue");
         } else if (actionCommand.equals("line")) {
             primitive = "line";
-            System.out.println("line");
         } else if (actionCommand.equals("circle")) {
             primitive = "circle";
-            System.out.println("circle");
         }
     }
 
@@ -126,9 +139,10 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
     @Override
     public void mousePressed(MouseEvent e) {
+        start = new Point();
         start.x = e.getX();
         start.y = e.getY();
-        System.out.println("Start X: " + start.x + ", Start Y: " + start.y);
+        //System.out.println("Start X: " + start.x + ", Start Y: " + start.y);
     }
 
     @Override
@@ -137,17 +151,28 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
         int endY = e.getY();
         Point end = new Point(endX, endY);
 
-        PaintingPrimitives shape;
-
         if(primitive.equals("line")) {
-            shape = new Line(color, start, end);
+            centerPanel.addPrimitive(new Line(color, start, end));
         } else {
-            shape = new Circle(color, start, end);
+            centerPanel.addPrimitive(new Circle(color, start, end));
         }
 
-        centerPanel.addPrimitive(shape);
-        shape.draw(getGraphics());
+        try {
+            // DataOutputStream
+            ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+            //ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
 
+            oos.writeObject(centerPanel.primitives);
+            System.out.println("Write cetner panel to Hub...");
+            //centerPanel = (PaintingPanel) ois.readObject();
+
+        } catch (IOException exc) {
+            exc.printStackTrace();
+        }
+
+        centerPanel.paintComponents(getGraphics());
+        centerPanel.validate();
+        centerPanel.repaint();
     }
 
     @Override

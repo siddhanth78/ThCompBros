@@ -1,4 +1,5 @@
 
+
 import java.awt.*;
 
 abstract class PaintingPrimitives {
@@ -9,9 +10,12 @@ abstract class PaintingPrimitives {
     }
 
     public final void draw(Graphics g) {
+        System.out.println(g);
+
         g.setColor(this.color);
         drawGeometry(g);
     }
     
     protected abstract void drawGeometry(Graphics g);
+
 }

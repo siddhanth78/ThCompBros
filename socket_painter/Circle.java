@@ -1,8 +1,12 @@
 
+
 import java.awt.*;
 import java.awt.Point;
+import java.io.Serializable;
 
-public class Circle extends PaintingPrimitives {
+public class Circle extends PaintingPrimitives implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Point center;
     private Point radiusPoint;
@@ -15,7 +19,8 @@ public class Circle extends PaintingPrimitives {
 
     public void drawGeometry(Graphics g) {
         int radius = (int) Math.abs(center.distance(radiusPoint));
-        g.drawOval(center.x - radius, center.y - radius, radius*2, radius*2);           
+        g.drawOval(this.center.x - radius, this.center.y - radius, radius*2, radius*2);           
     }
     
+
 }

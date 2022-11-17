@@ -1,8 +1,12 @@
 
+
 import java.awt.*;
 import java.awt.Point;
+import java.io.Serializable;
 
-public class Line extends PaintingPrimitives {
+public class Line extends PaintingPrimitives implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     private Point start;
     private Point end;
@@ -15,6 +19,7 @@ public class Line extends PaintingPrimitives {
 
     @Override
     protected void drawGeometry(Graphics g) {
-        g.drawLine(start.x, start.y, end.x, end.y);
+        g.drawLine(this.start.x, this.start.y, this.end.x, this.end.y);
     }
+
 }
