@@ -13,7 +13,7 @@ import javax.swing.event.MouseInputListener;
 public class Painter extends JFrame implements ActionListener, MouseInputListener {
 
     static final int PORT = 4200;
-    private Socket s;
+    private static Socket s;
 
     private Color color;
     private String primitive;
@@ -108,9 +108,71 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
             e.printStackTrace();
         }
 
+        // Spawn thread to recieve primtives from Hub
+        HubConnector h = new HubConnector(this);
+        h.start();
+
         // Make it visible to layout all the components on the screen
         setVisible(true);
     }
+
+    //
+    //
+    //
+    //
+    //
+
+    // Hub Connection class
+        // should write what mouseListener is writing
+        // print confirmation of recieved primitive
+
+    // uuid
+    // logic
+
+    private static class HubConnector extends Thread {
+
+        protected ObjectInputStream ois;
+        protected Painter painter;
+
+        public HubConnector(Painter pa) {
+            this.painter = pa;
+
+            try {
+                ois = new ObjectInputStream(s.getInputStream());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        public synchronized PaintingPrimitives getMessage() {
+            PaintingPrimitives p = null;
+            try {
+                p = (PaintingPrimitives) ois.readObject();
+                System.out.println("obj read from Hub");
+            } catch (IOException | ClassNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return p;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                // get primitive from Hub
+                painter.centerPanel.addPrimitive(getMessage());
+
+                painter.centerPanel.paintComponents(painter.getGraphics());
+                painter.centerPanel.validate();
+                painter.centerPanel.repaint();
+            }
+        }
+    }
+
+    //
+    // Mouse Listeners
+    //
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -151,19 +213,23 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
         int endY = e.getY();
         Point end = new Point(endX, endY);
 
+        PaintingPrimitives p = null;
+
         if(primitive.equals("line")) {
-            centerPanel.addPrimitive(new Line(color, start, end));
+            p = new Line(color, start, end);
         } else {
-            centerPanel.addPrimitive(new Circle(color, start, end));
+            p = new Circle(color, start, end);
         }
+
+        centerPanel.addPrimitive(p);
 
         try {
             // DataOutputStream
             ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
             //ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
 
-            oos.writeObject(centerPanel.primitives);
-            System.out.println("Write cetner panel to Hub...");
+            oos.writeObject(p);
+            System.out.println("Write primitive to Hub...");
             //centerPanel = (PaintingPanel) ois.readObject();
 
         } catch (IOException exc) {

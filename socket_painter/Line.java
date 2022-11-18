@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.Point;
 import java.io.Serializable;
 
-public class Line extends PaintingPrimitives implements Serializable{
+public class Line extends PaintingPrimitives implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

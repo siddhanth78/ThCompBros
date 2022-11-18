@@ -1,9 +1,13 @@
 
 
 import java.awt.*;
+import java.io.Serializable;
 
-abstract class PaintingPrimitives {
+abstract class PaintingPrimitives implements Serializable {
     private Color color;
+
+    protected PaintingPrimitives() {
+    }
 
     public PaintingPrimitives(Color c) {
         this.color = c;
