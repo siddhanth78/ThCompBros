@@ -1,8 +1,12 @@
+import java.io.BufferedInputStream;
+import java.io.Flushable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.sql.ClientInfoStatus;
 import java.util.ArrayList;
 
@@ -30,6 +34,7 @@ public class Hub {
         clients = new ArrayList<>();
 
         // getting client requests
+        System.out.println("Waiting for Clients to connect...");
         while (true) {
             try {
                 // Socket object to receive incoming client requests
@@ -95,19 +100,17 @@ public class Hub {
     //
 
     private static class ClientHandler extends Thread {
-        protected Socket socket;
         protected Hub hub;
         protected ObjectOutputStream oos;
         protected ObjectInputStream ois;
 
         // Constructor
         public ClientHandler(Socket s, Hub h) {
-            this.socket = s;
             this.hub = h;
 
             try {
-                oos = new ObjectOutputStream(s.getOutputStream());
                 ois = new ObjectInputStream(s.getInputStream());
+                oos = new ObjectOutputStream(s.getOutputStream());
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -118,10 +121,12 @@ public class Hub {
             try {
                 oos.writeObject(p);
                 System.out.println("write obj to Client");
+                oos.flush();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+           
         }
 
         @Override
@@ -146,16 +151,19 @@ public class Hub {
                     // read single object
                     // put it to the hub - add to arrayList, push to primitives
                     
+                    PaintingPrimitives p;
 
                     // forward primitve to Hub
                     try {
-                        PaintingPrimitives p = (PaintingPrimitives) ois.readObject();
+                        p = (PaintingPrimitives) ois.readObject();
                         hub.putMessage(p, this);
                     } catch (ClassNotFoundException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
+                    } catch (SocketException se) {
+                        System.out.println("Client disconnected");
+                        return;
                     }
-                    ois.reset();
 
                     // read and write message quese
 

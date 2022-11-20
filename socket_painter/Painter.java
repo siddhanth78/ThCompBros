@@ -22,6 +22,8 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
     private PaintingPanel centerPanel;
 
+    protected ObjectOutputStream oos;
+
     public Painter() {
 
         // Initialize private instance variables
@@ -103,17 +105,20 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
         try {
             s = new Socket("localhost", PORT);
             System.out.println("Connected");
+            oos = new ObjectOutputStream(s.getOutputStream());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        // Spawn thread to recieve primtives from Hub
-        HubConnector h = new HubConnector(this);
-        h.start();
+       
 
         // Make it visible to layout all the components on the screen
         setVisible(true);
+
+        // Spawn thread to recieve primtives from Hub
+        HubConnector h = new HubConnector(this);
+        h.start();
     }
 
     //
@@ -132,12 +137,14 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
     private static class HubConnector extends Thread {
 
         protected ObjectInputStream ois;
+        //protected ObjectOutputStream oos;
         protected Painter painter;
 
         public HubConnector(Painter pa) {
             this.painter = pa;
 
             try {
+                //oos = new ObjectOutputStream(s.getOutputStream());
                 ois = new ObjectInputStream(s.getInputStream());
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -225,7 +232,7 @@ public class Painter extends JFrame implements ActionListener, MouseInputListene
 
         try {
             // DataOutputStream
-            ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+            
             //ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
 
             oos.writeObject(p);
